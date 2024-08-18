@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/f4efa66e1d.js" crossorigin="anonymous"></script>
+    <title>Pinterest Clone</title>
+    <style>
+        :root {
+            --card_width: 250px;
+            --row_increment: 10px;
+            --card_border_radius: 16px;
+            --card_small: 26;
+            --card_medium: 33;
+            --card_large: 45;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 5px;
+            background-color: #161616;
+        }
+
+        header{
+            width: 100%;
+            height: 90px;
+            border-bottom: solid 1px rgb(61, 61, 61);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background-color: transparent;
+            border-radius: 25px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: solid 1px white;
+            position: relative;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        #search {
+            border: none;
+            height: 25px;
+            padding: 10px;
+            font-size: 16px;
+            width: 90vw;
+            border-radius: 25px 0 0 25px;
+            background-color: transparent;
+            color: white;
+        }
+
+        .fa-brands{
+            color: #9b0027;
+            font-size: 45px;
+            margin-left: 25px ;
+        }
+
+        .random{
+            height: 45px;
+            width: 140px;
+            border: none;
+            border-radius: 5px;
+            background-color: #9b0027;
+            color: white;
+            font-size: 15px;
+        }
+
+
+        .pin_container {
+            margin: 0;
+            padding: 0;
+            width: 90vw;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, var(--card_width));
+            grid-auto-rows: var(--row_increment);
+            justify-content: center;
+
+            background-color: #161616;
+        }
+
+
+
+        .card {
+            padding: 0;
+            margin: 15px 10px;
+            border-radius: var(--card_border_radius);
+            background-size: cover;
+            background-position: center;
+            background:linear-gradient(#323232, #484848) ;
+            overflow: hidden;
+        }
+
+        .card_small {
+            grid-row-end: span var(--card_small);
+        }
+
+        .card_medium {
+            grid-row-end: span var(--card_medium);
+        }
+
+        .card_large {
+            grid-row-end: span var(--card_large);
+        }
+    </style>
+</head>
+
+
+<body>
+    <header>
+        <div class="white-circle">
+            <i class="fa-brands fa-pinterest fa-2x"></i>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Search for photos">
+        </div>
+
+        <!-- <button class="random">
+            Randomize
+        </button> -->
+
+    </header>
+    <div class="pin_container">
+        <div class="card card_small"></div>
+       
+    </div>
+
+    <script>
+        const apiKey = 'zuK5nbcU70vP3il22FMLVknwumVzOamY0U37FlBTossiMNd6hKYpd0zb';
+        const cardsContainer = document.querySelector('.pin_container');
+        const searchInput = document.getElementById('search');
+        let currentPage = 1;
+        let currentQuery = 'nature';
+
+        function fetchImages(query, page = 1) {
+            const apiURL = `https://api.pexels.com/v1/search?query=${query}&per_page=30&page=${page}`;
+
+            fetch(apiURL, {
+                headers: {
+                    Authorization: apiKey
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    data.photos.forEach(photo => {
+                        const card = document.createElement('div');
+                        card.classList.add('card');
+                        card.classList.add(getRandomCardSize());
+                        card.style.backgroundImage = `url(${photo.src.medium})`;
+                        cardsContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching images:', error);
+                });
+        }
+
+        function getRandomCardSize() {
+            const sizes = ['card_small', 'card_medium', 'card_large'];
+            return sizes[Math.floor(Math.random() * sizes.length)];
+        }
+
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) {
+                    currentQuery = query;
+                    currentPage = 1;
+                    cardsContainer.innerHTML = '';  
+                    fetchImages(currentQuery);
+                }
+            }
+        });
+
+        
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                currentPage++;
+                fetchImages(currentQuery, currentPage);
+            }
+        });
+
+        
+        fetchImages(currentQuery);
+    </script>
+</body>
+zuK5nbcU70vP3il22FMLVknwumVzOamY0U37FlBTossiMNd6hKYpd0zb
+
+</html>
